@@ -120,8 +120,8 @@ The system is capable of identifying and highlighting moving vehicles in a video
 ## 🧑‍💻 Author
 
 **Mansuri Mo. Umer**
-Department of Computer Engineering
-A.Y. Dadabhai Technical Institute
-Enrollment No: 226010307052
+**Department of Computer Engineering**
+**A.Y. Dadabhai Technical Institute**
+**Enrollment No: 226010307052**
 
 Project Guide: **Ms. Anjali V. Patel**
