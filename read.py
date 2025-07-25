@@ -1,0 +1,80 @@
+import cv2
+import numpy as np
+
+# Function to rescale frames
+def rescaleframe(frame, scale=0.4):
+    width = int(frame.shape[1] * scale)
+    height = int(frame.shape[0] * scale)
+    dimensions = (width, height)
+    return cv2.resize(frame, dimensions, interpolation=cv2.INTER_AREA)
+
+    
+#reading videos
+capture =cv2.VideoCapture('ambulance.mkv')
+
+#create a background object
+backgroundObject=cv2.createBackgroundSubtractorMOG2(history=2)
+kernel=np.ones((3,3),np.uint8)
+kernel2=None
+
+while True:
+    ret, frame =capture.read()
+
+      
+    if not ret:
+        break
+
+    fgmask=backgroundObject.apply(frame)
+    __,fgmask=cv2.threshold(fgmask,20,255,cv2.THRESH_BINARY)
+    fgmask = cv2.erode(fgmask,kernel, iterations=1)
+    fgmask = cv2.dilate(fgmask,kernel2,iterations=6 )
+
+
+    #detect the countours
+    countors,__=cv2.findContours(fgmask,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+
+    frameCopy=frame.copy()
+
+    #loop inside the countor and search for bigger ones
+
+
+    for cnt in countors:
+        if cv2.contourArea(cnt) > 20000:
+
+            #get the area coordinates
+            x,y,width,height=cv2.boundingRect(cnt)
+
+
+            #draw a rectangle around the area
+            cv2.rectangle(frameCopy,(x,y),(x+width,y+height),(0,255,0),thickness=5)
+
+            #write a text near the object
+            cv2.putText(frameCopy,"OBJECT DETECTED",(x,y-10),cv2.FONT_HERSHEY_SIMPLEX,0.3,(0,255,0),1,cv2.LINE_AA)            
+    forground=cv2.bitwise_and(frame,frame,mask=fgmask)
+
+    #Combine all together
+    stacked=np.hstack((frame,forground,frameCopy))
+
+    #Resize the stacked frame
+    stacked_resized = rescaleframe(stacked, scale=0.4)
+
+    cv2.imshow('stacked', stacked_resized)
+
+    cv2.imshow('stacked',cv2.resize(stacked,None,fx=0.3,fy=0.3))
+    
+    #cv2.imshow('forground',forground)
+    #cv2.imshow('frameCopy',frameCopy)
+    #cv2.imshow('fgamsk',fgmask)
+    #cv2.imshow('img',frame)
+
+    
+    
+
+    if  cv2.waitKey(1)== ord('q'):
+        break
+
+
+    
+capture.release()
+cv.destroyAllWindows()
